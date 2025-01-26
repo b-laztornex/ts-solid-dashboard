@@ -50,8 +50,6 @@ const GLTFViewer: Component<GLTFViewerProps> = (props) => {
 
     // WebGLRenderer: Renders the 3D scene.
     // antialias: true: Enables smooth edges.
-    // shadowMap:
-    // domElement:
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     // Enables and configures shadows for realism.
