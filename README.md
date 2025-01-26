@@ -101,18 +101,6 @@ Deploy the `dist` folder to any static hosting provider (e.g., Netlify, Vercel, 
 
 The project adheres to a modular structure for scalability and maintainability:
 
-```
-src/
-├── components/  # Reusable UI components (e.g., Buttons, Table, Modal)
-├── pages/       # Page-level components (e.g., Dashboard, Analysis Results)
-├── routes/      # Route definitions
-├── services/    # API calls and backend integrations
-├── store/       # Global state management
-├── assets/      # Static files (e.g., GLTF models, images)
-├── styles/      # TailwindCSS and global styles
-└── utils/       # Utility functions (e.g., data formatting, calculations)
-```
-
 ### Directory Descriptions
 
 - **`components`**: Contains modular reusable UI components (e.g., Buttons, Table, Modal)
@@ -120,15 +108,11 @@ src/
 - **`routes`**: Defines routes for application navigation and lazy-loading components if needed.
 - **`services`**: Contains API service logic to handle REST apicall to the backend.
 - **`store`**: Manages global state using tools Redux.
-- **`assets`**: Stores static files such as images, fonts, and 3D models.
-- **`styles`**: Defines TailwindCSS configuration and global styles.
+- **`assets`**: Stores static files such as images, fonts.
+- **`styles`**: Defines Custom configuration and global styles.
 - **`utils`**: Utility functions for data transformation and other helper logic.
 
 ### Core Files
 
 - **`App.tsx`**: The root component that integrates routing and sets up the app layout.
 - **`index.tsx`**: Entry point of the application. Responsible for rendering `App` and setting up any providers or global configurations.
-
----
-
-This README ensures proper visualization and formatting for GitHub, aligning with Markdown standards for clarity and readability.
