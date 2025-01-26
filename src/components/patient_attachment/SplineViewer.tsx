@@ -1,14 +1,6 @@
-import {
-  createEffect,
-  createResource,
-  onMount,
-  onCleanup,
-  createSignal,
-} from "solid-js";
+import { createEffect, onMount, onCleanup, createSignal } from "solid-js";
 import * as THREE from "three";
-import { FontLoader, TextGeometry } from "three-stdlib";
 import { DataStructure, Scalar, Spline } from "../../types/Types";
-import { fetchData } from "../../services/api";
 
 interface SplineViewerProps {
   url: string;
@@ -17,30 +9,34 @@ interface SplineViewerProps {
 
 const SplineViewer = (props: SplineViewerProps) => {
   let container: HTMLDivElement | undefined;
-  const [scalars, setScalars] = createSignal([]);
-  const [splines, setSplines] = createSignal([]);
+  const [scalars, setScalars] = createSignal<Scalar[]>([]);
+  const [splines, setSplines] = createSignal<Spline[]>([]);
 
-  const [data] = createResource<DataStructure>(() =>
-    fetchData<DataStructure>(`${props.url}`)
-  );
-
-  createEffect(() => {
-    if (data()) {
-      const newScalars: Scalar[] = [];
-      const newSplines: Spline[] = [];
-
-      Object.entries(data()).forEach(([key, value]) => {
-        if (value.type === "Scalar") newScalars.push({ label: key, ...value });
-        if (Array.isArray(value.points))
-          newSplines.push({ label: key, ...value });
-      });
-
-      setScalars(newScalars);
-      setSplines(newSplines);
-    }
-  });
+  let splineProcessWorker: Worker;
+  let splineNormalizeWorker: Worker;
 
   onMount(() => {
+    // Initialize Web Workers
+    splineNormalizeWorker = new Worker(
+      new URL("../../workers/splineWorkerNormalize.js", import.meta.url),
+      { type: "module" }
+    );
+
+    splineProcessWorker = new Worker(
+      new URL("../../workers/splineWorkerProcess.js", import.meta.url),
+      { type: "module" }
+    );
+
+    // Fetch and process data using splineProcessWorker
+    splineProcessWorker.postMessage({ url: props.url });
+
+    splineProcessWorker.onmessage = (event) => {
+      const { scalars: newScalars, splines: newSplines } = event.data;
+      setScalars(newScalars);
+      setSplines(newSplines);
+    };
+
+    // Initialize THREE.js scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x202020);
 
@@ -68,10 +64,7 @@ const SplineViewer = (props: SplineViewerProps) => {
 
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Rotate the spline group
-      splineGroup.rotation.y += 0.01; // Adjust rotation speed if needed
-
+      splineGroup.rotation.y += 0.01;
       renderer.render(scene, camera);
     };
     animate();
@@ -89,52 +82,49 @@ const SplineViewer = (props: SplineViewerProps) => {
       if (container && renderer.domElement) {
         container.removeChild(renderer.domElement);
       }
+      splineProcessWorker.terminate();
+      splineNormalizeWorker.terminate();
     });
 
     createEffect(() => {
       const currentSplines = splines();
       if (currentSplines.length > 0) {
-        const normalizeSplinePoints = (splinePoints) => {
-          const boundingBox = new THREE.Box3().setFromPoints(
-            splinePoints.map((p) => new THREE.Vector3(...p))
-          );
-          const size = boundingBox.getSize(new THREE.Vector3());
-          const scaleFactor = 200 / Math.max(size.x, size.y, size.z);
-          const center = boundingBox.getCenter(new THREE.Vector3());
-          return splinePoints.map((p) =>
-            new THREE.Vector3(...p).sub(center).multiplyScalar(scaleFactor)
-          );
-        };
-
-        // Clear previous splines
         splineGroup.clear();
 
         currentSplines.forEach((spline) => {
-          const normalizedPoints = normalizeSplinePoints(spline.points);
-          const curve = new THREE.CatmullRomCurve3(normalizedPoints, true);
-          const geometry = new THREE.BufferGeometry().setFromPoints(
-            curve.getPoints(100)
-          );
-
-          const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-          const splineLine = new THREE.Line(geometry, material);
-          splineGroup.add(splineLine);
-
-          normalizedPoints.forEach((point) => {
-            const sphereGeometry = new THREE.SphereGeometry(2, 16, 16);
-            const sphereMaterial = new THREE.MeshBasicMaterial({
-              color: 0xffffff,
-            });
-            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-            sphere.position.copy(point);
-            splineGroup.add(sphere);
+          splineNormalizeWorker.postMessage({
+            action: "normalizeSplinePoints",
+            data: { splinePoints: spline.points },
           });
+
+          splineNormalizeWorker.onmessage = (event) => {
+            if (event.data.action === "normalizedPoints") {
+              const normalizedPoints = event.data.data;
+
+              const curve = new THREE.CatmullRomCurve3(normalizedPoints, true);
+              const geometry = new THREE.BufferGeometry().setFromPoints(
+                curve.getPoints(100)
+              );
+
+              const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+              const splineLine = new THREE.Line(geometry, material);
+              splineGroup.add(splineLine);
+
+              normalizedPoints.forEach((point) => {
+                const sphereGeometry = new THREE.SphereGeometry(2, 16, 16);
+                const sphereMaterial = new THREE.MeshBasicMaterial({
+                  color: 0xffffff,
+                });
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                sphere.position.copy(point);
+                splineGroup.add(sphere);
+              });
+            }
+          };
         });
 
         const calculateBoundingBox = () => {
-          const allPoints = currentSplines.flatMap((spline) =>
-            normalizeSplinePoints(spline.points)
-          );
+          const allPoints = currentSplines.flatMap((spline) => spline.points);
 
           scalars().forEach((_, index) => {
             const offset = (index - (scalars().length - 1) / 2) * 10;
@@ -152,6 +142,7 @@ const SplineViewer = (props: SplineViewerProps) => {
       }
     });
   });
+
   return (
     <div
       ref={(el) => (container = el)}
