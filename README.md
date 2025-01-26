@@ -135,37 +135,12 @@ The project adheres to a modular structure for scalability and maintainability:
   It also provides buttons for users to zoom in and out.Upon component unmounting, it ensures that resources are properly disposed of to prevent memory leaks.
 
 - **`patients_attachment/IMGViewer.tsx`**: Preview images with an img tag :)
-- **`patients_attachment/SplineViewer.tsx`**: This component provides an interactive visualization of 3D splines and scalars, useful for scientific or technical applications where users need to analyze spline-based data models. It is well-suited for scenarios like medical imaging, engineering simulations, or data visualization dashboards. Props:
-
-url: The API endpoint to fetch data.
-name: A name associated with the viewer.
-State Management:
-
-Uses createSignal for managing lists of scalars and splines.
-Utilizes createResource to fetch data asynchronously from the provided url.
-Data Processing:
-
-Splits fetched data into scalars and splines based on the type property.
-Normalizes spline points using bounding boxes to ensure consistent visualization.
-3D Scene Setup:
-
-Scene: Configures a Three.js scene with a dark background.
-Lighting: Includes ambient and directional lights for better visibility.
-Camera: Dynamically positions and adjusts based on the bounding box of the visualized data.
-Spline Group: A Three.js group to organize and manage spline geometries and visual markers.
-Spline Rendering:
-
-Renders splines using CatmullRomCurve3 for smooth curves.
-Adds visual markers (spheres) at key spline points for clarity.
-Dynamically recalculates the bounding box and adjusts the camera to focus on all rendered elements.
-Dynamic Updates:
-
-Reacts to changes in the splines or scalars data to re-render the 3D elements.
-Handles window resizing by adjusting the camera's aspect ratio and renderer size.
-Lifecycle Management:
-
-Uses onMount for initializing Three.js components and setting up the rendering loop.
-Cleans up event listeners and DOM elements on component unmount (onCleanup).
+- **`patients_attachment/SplineViewer.tsx`**: This component provides an interactive visualization of 3D splines and scalars, useful for scientific or technical applications where users need to analyze spline-based data models. It is well-suited for scenarios like medical imaging, engineering simulations, or data visualization dashboards.
+  the Uses createSignal for managing lists of scalars and splines. Utilizes createResource to fetch data asynchronously from the provided url. the data processing ocruss spliting fetched data into scalars and splines based on the type property. normalizes spline points using bounding boxes to ensure consistent visualization.
+  for the 3D Scene Setup, Scene -> Configures a Three.js scene with a dark background, Lighting -> Includes ambient and directional lights for better visibility, Camera-> Dynamically positions and adjusts based on the bounding box of the visualized data. Spline Group -> A Three.js group to organize and manage spline geometries and visual markers.
+  For the Spline Rendering -> Renders splines using CatmullRomCurve3 for smooth curves. Adds visual markers (spheres) at key spline points for clarity. Dynamically recalculates the bounding box and adjusts the camera to focus on all rendered elements. For the Dynamic Updates, Reacts to changes in the splines or scalars data to re-render the 3D elements. Handles window resizing by adjusting the camera's aspect ratio and renderer size.
+  Lifecycle Management- > Uses onMount for initializing Three.js components and setting up the rendering loop.
+  Cleans up event listeners and DOM elements on component unmount (onCleanup).
 
 # Leverage of Requirements
 
@@ -222,3 +197,13 @@ Cleans up event listeners and DOM elements on component unmount (onCleanup).
 ### 6. Maintainability
 
 - Implement clear documentation, coding standards, and a well-organized folder structure to support ongoing development efforts.
+
+## Notes (Nice to have)
+
+- **`ENV variables`**: For config diferent enviroments local, staging, production etc etc....
+- **`Workers`**: it would be nice make use them for distribute the heavy load for the SplineViewer component
+- **`Auth`**: Implement JWT authentication with protected routes
+- **`Test`**: Unit test for every single component
+- **`typescript`**: not all the componets compile with the standar
+- **`dockerize the fastAPI BE`**: not all the componets compile with the standar
+- **`Scalars`**: display the Scalars in the spline viewer
