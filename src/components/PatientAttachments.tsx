@@ -2,7 +2,7 @@ import { Component, createResource, For, Show } from "solid-js";
 import { fetchData } from "../services/api";
 import type { Attachment } from "../types/Types";
 import GLTFViewer from "./patient_attachment/GLTFViewer";
-import JPEGViewer from "./patient_attachment/JPEGViewer";
+import IMGViewer from "./patient_attachment/IMGViewer";
 import SplineViewer from "./patient_attachment/SplineViewer";
 
 interface PatientAttachmentsProps {
@@ -45,7 +45,7 @@ const PatientAttachments: Component<PatientAttachmentsProps> = (props) => {
                       <GLTFViewer url={dataLink!} name={attachment.name} />
                     )}
                     {attachment.media_type === "image/jpeg" && (
-                      <JPEGViewer url={dataLink!} name={attachment.name} />
+                      <IMGViewer url={dataLink!} name={attachment.name} />
                     )}
                     {attachment.media_type ===
                       "application/com.laralab.analysis-primitives+json" && (

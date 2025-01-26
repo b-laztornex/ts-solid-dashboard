@@ -1,12 +1,12 @@
-// src/components/JPEGViewer.tsx
+// src/components/IMGViewer.tsx
 import { Component } from "solid-js";
 
-interface JPEGViewerProps {
+interface IMGViewerProps {
   url: string;
   name: string;
 }
 
-const JPEGViewer: Component<JPEGViewerProps> = (props) => (
+const IMGViewer: Component<IMGViewerProps> = (props) => (
   <div>
     <img
       src={`http://localhost:8000${props.url}`}
@@ -17,4 +17,4 @@ const JPEGViewer: Component<JPEGViewerProps> = (props) => (
   </div>
 );
 
-export default JPEGViewer;
+export default IMGViewer;
