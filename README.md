@@ -204,6 +204,6 @@ The project adheres to a modular structure for scalability and maintainability:
 - **`Workers`**: it would be nice make use them for distribute the heavy load for the SplineViewer component
 - **`Auth`**: Implement JWT authentication with protected routes
 - **`Test`**: Unit test for every single component
-- **`typescript`**: not all the componets compile with the standar
-- **`dockerize the fastAPI BE`**: not all the componets compile with the standar
+- **`typescript`**: Not all the componets compile fully with ts
+- **`dockerize the fastAPI BE`**: deploy the app as a container, making deployment straightforwar
 - **`Scalars`**: display the Scalars in the spline viewer
