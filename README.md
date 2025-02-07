@@ -135,12 +135,31 @@ The project adheres to a modular structure for scalability and maintainability:
   It also provides buttons for users to zoom in and out.Upon component unmounting, it ensures that resources are properly disposed of to prevent memory leaks.
 
 - **`patients_attachment/IMGViewer.tsx`**: Preview images with an img tag :)
-- **`patients_attachment/SplineViewer.tsx`**: This component provides an interactive visualization of 3D splines and scalars, useful for scientific or technical applications where users need to analyze spline-based data models. It is well-suited for scenarios like medical imaging, engineering simulations, or data visualization dashboards.
-  the Uses createSignal for managing lists of scalars and splines. Utilizes createResource to fetch data asynchronously from the provided url. the data processing ocruss spliting fetched data into scalars and splines based on the type property. normalizes spline points using bounding boxes to ensure consistent visualization.
-  for the 3D Scene Setup, Scene -> Configures a Three.js scene with a dark background, Lighting -> Includes ambient and directional lights for better visibility, Camera-> Dynamically positions and adjusts based on the bounding box of the visualized data. Spline Group -> A Three.js group to organize and manage spline geometries and visual markers.
-  For the Spline Rendering -> Renders splines using CatmullRomCurve3 for smooth curves. Adds visual markers (spheres) at key spline points for clarity. Dynamically recalculates the bounding box and adjusts the camera to focus on all rendered elements. For the Dynamic Updates, Reacts to changes in the splines or scalars data to re-render the 3D elements. Handles window resizing by adjusting the camera's aspect ratio and renderer size.
-  Lifecycle Management- > Uses onMount for initializing Three.js components and setting up the rendering loop.
-  Cleans up event listeners and DOM elements on component unmount (onCleanup).
+- **`patients_attachment/SplineViewer.tsx`**:State Management
+  createSignal: Manages lists of scalars and splines for dynamic updates.
+  createResource: Fetches data asynchronously from the provided URL.
+  Data Processing
+  Splits fetched data into scalars and splines based on the type property.
+  Normalizes spline points using bounding boxes to ensure consistent visualization.
+  3D Scene Setup
+  Scene
+  Configures a Three.js scene with a dark background for contrast and visual clarity.
+  Lighting
+  Includes ambient and directional lights to enhance visibility and depth perception.
+  Camera
+  Dynamically positions and adjusts based on the bounding box of the visualized data, ensuring all elements remain in focus.
+  Spline Group
+  Organizes and manages spline geometries and visual markers using a Three.js Group.
+  Spline Rendering
+  Renders splines using CatmullRomCurve3 for smooth and visually appealing curves.
+  Adds visual markers (spheres) at key spline points for improved clarity.
+  Dynamically recalculates the bounding box and adjusts the camera to encompass all rendered elements.
+  Dynamic Updates
+  Reacts to changes in the splines or scalars data to re-render the 3D elements dynamically.
+  Handles window resizing by adjusting the camera's aspect ratio and renderer size.
+  Lifecycle Management
+  onMount: Initializes Three.js components and sets up the rendering loop.
+  onCleanup: Cleans up event listeners, DOM elements, and resources to prevent memory leaks.
 
 # Leverage of Requirements
 

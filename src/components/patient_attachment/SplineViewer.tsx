@@ -19,6 +19,9 @@ const SplineViewer = (props: SplineViewerProps) => {
   let container: HTMLDivElement | undefined;
   const [scalars, setScalars] = createSignal([]);
   const [splines, setSplines] = createSignal([]);
+  const [selectedPoint, setSelectedPoint] = createSignal<THREE.Mesh | null>(
+    null
+  );
 
   const [data] = createResource<DataStructure>(() =>
     fetchData<DataStructure>(`${props.url}`)
@@ -66,11 +69,16 @@ const SplineViewer = (props: SplineViewerProps) => {
     const splineGroup = new THREE.Group();
     scene.add(splineGroup);
 
+    splineGroup.rotation.y += 5;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
     const animate = () => {
       requestAnimationFrame(animate);
 
       // Rotate the spline group
-      splineGroup.rotation.y += 0.01; // Adjust rotation speed if needed
+      //splineGroup.rotation.y += 0.01; // Adjust rotation speed if needed
 
       renderer.render(scene, camera);
     };
@@ -83,6 +91,29 @@ const SplineViewer = (props: SplineViewerProps) => {
     };
 
     window.addEventListener("resize", handleResize);
+
+    const onMouseDown = (event) => {
+      mouse.x = (event.clientX / container.clientWidth) * 2 - 1;
+      mouse.y = -(event.clientY / container.clientHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      raycaster.far = 1000; // Ensure ray reaches distant objects
+      raycaster.params.Points.threshold = 5; // Increase click area for points
+
+      console.log("Ray Origin:", raycaster.ray.origin);
+      console.log("Ray Direction:", raycaster.ray.direction);
+
+      const intersects = raycaster.intersectObjects(splineGroup.children, true);
+      console.log("Intersections:", intersects.length);
+
+      if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+        console.log("Clicked Sphere Position:", clickedObject.position);
+        clickedObject.material.color.set(0x00ff00);
+      }
+    };
+
+    container.addEventListener("mousedown", onMouseDown);
 
     onCleanup(() => {
       window.removeEventListener("resize", handleResize);
@@ -121,12 +152,15 @@ const SplineViewer = (props: SplineViewerProps) => {
           splineGroup.add(splineLine);
 
           normalizedPoints.forEach((point) => {
-            const sphereGeometry = new THREE.SphereGeometry(2, 16, 16);
+            const sphereGeometry = new THREE.SphereGeometry(2, 15, 15);
             const sphereMaterial = new THREE.MeshBasicMaterial({
               color: 0xffffff,
             });
             const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
             sphere.position.copy(point);
+
+            console.log("Sphere Position:", sphere.position);
+            console.log("Camera Position:", camera.position);
             splineGroup.add(sphere);
           });
         });
@@ -147,8 +181,10 @@ const SplineViewer = (props: SplineViewerProps) => {
         const boundingBox = calculateBoundingBox();
         const size = boundingBox.getSize(new THREE.Vector3());
         const center = boundingBox.getCenter(new THREE.Vector3());
-        camera.position.set(center.x, center.y, Math.max(size.x, size.y) * 2);
-        camera.lookAt(center);
+        //camera.position.set(center.x, center.y, Math.max(size.x, size.y) * 2);
+        //camera.lookAt(center);
+        camera.position.set(0, 0, 200); // Move camera forward
+        camera.lookAt(new THREE.Vector3(0, 0, 0)); // Ensure it's looking at the center
       }
     });
   });
